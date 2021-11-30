@@ -1,5 +1,5 @@
 # Where to find Factorio files
-FACTORIO_ROOT="/mnt/e/Program Files (x86)/Steam/steamapps/common/Factorio/"
+FACTORIO_ROOT="....../Steam/steamapps/common/Factorio/"
 
 # Output file format. PDF recommended.
 # SVG can render tooltips - but they don't contain anything other than debug information.
@@ -13,7 +13,7 @@ DOT=dot
 UNFLATTEN=unflatten
 
 
-all: recipes-all.$(OUTFORMAT) techtree-all.$(OUTFORMAT) # recipes-filtered.$(OUTFORMAT)
+all: recipes-all.$(OUTFORMAT) techtree-all.$(OUTFORMAT)
 
 recipes-all.$(OUTFORMAT): recipes.lua utils.lua
 	$(LUA) -e 'FACTORIO_ROOT=$(FACTORIO_ROOT)' recipes.lua | $(UNFLATTEN) | $(DOT) -T $(OUTFORMAT) -o $@
