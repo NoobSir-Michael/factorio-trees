@@ -82,21 +82,34 @@ end
 
 function textOutput()
     file = io.open("./technology.data.out.csv","w")
-    file:write("resultes,category,resources,energy\n")
-    for id, recipe in pairs(data) do
+    file:write("tech_name,pre_request,unlock_recipes\n")
+    for id, tech in pairs(data) do
+        if tech.type == "technology" then
+            file:write(tech.name,",")
+            
+            if tech.prerequisites ~= nil then
+                for prereq_id, prereq in pairs(tech.prerequisites) do
+                    file:write(prereq,";")
+                end
+            else
+                file:write("NA")
+            end
+            file:write(",")
 
-        for res_id, res in pairs(recipe.results) do
-            file:write(res.amount,":",res.name,";")
+            counter = 0
+            if tech.effects ~= nil then
+                for effect_id, effect in pairs(tech.effects) do
+                    if effect.type == "unlock-recipe" then
+                        file:write(effect.recipe,";")
+                        counter = counter+1
+                    end
+                end
+            end
+            if counter == 0 then
+                file:write("NA")
+            end
+            file:write("\n")
         end
-        
-        file:write(",",(recipe.category or 'default'),",")
-        
-        for ing_id, ing in pairs(recipe.ingredients) do
-            file:write(ing.amount,":",ing.name,";")
-        end
-
-        file:write(",",recipe.energy_required,"\n")
-
     end
     io.close(file)
 end
