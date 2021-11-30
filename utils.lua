@@ -2,7 +2,7 @@
 -- Where the Factorio data/ folder lives
 FACTORIO_ROOT = FACTORIO_ROOT or "/Applications/factorio.app/Contents/"
 -- Choose your language here
-LANGUAGE = LANGUAGE or "en"
+LANGUAGE = LANGUAGE or "zh-CN" -- or "en"
 -- Set to false to disable string translation
 TRANSLATE = TRANSLATE or true
 
@@ -126,14 +126,16 @@ function HtmlLabel(name, img, energy)
 end
 
 function GetIcon(tbl)
-    -- Try and find an icon for the recipe/ingredient/result in tbl.
-    if tbl == nil then return nil end
-    if tbl.icon ~= nil then return tbl.icon:gsub("__base__", FACTORIO_ROOT.."data/base") end
-    png_path = FACTORIO_ROOT.."data/base/graphics/icons/"..tbl.name..".png"
-    if file_exists(png_path) then return png_path end
-    -- Not found? Try the fluid folder
-    png_path = FACTORIO_ROOT.."data/base/graphics/icons/fluid/"..tbl.name..".png"
-    if file_exists(png_path) then return png_path end
-    io.stderr:write('Icon not found for ', tbl.name, " at ", png_path, "\n")
+    -- Since the icon size is not match remove all the icons
+
+    -- -- Try and find an icon for the recipe/ingredient/result in tbl.
+    -- if tbl == nil then return nil end
+    -- if tbl.icon ~= nil then return tbl.icon:gsub("__base__", FACTORIO_ROOT.."data/base") end
+    -- png_path = FACTORIO_ROOT.."data/base/graphics/icons/"..tbl.name..".png"
+    -- if file_exists(png_path) then return png_path end
+    -- -- Not found? Try the fluid folder
+    -- png_path = FACTORIO_ROOT.."data/base/graphics/icons/fluid/"..tbl.name..".png"
+    -- if file_exists(png_path) then return png_path end
+    -- -- io.stderr:write('Icon not found for ', tbl.name, " at ", png_path, "\n")
     return nil
 end

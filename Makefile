@@ -1,9 +1,9 @@
 # Where to find Factorio files
-FACTORIO_ROOT="$(HOME)/Library/Application Support/Steam/SteamApps/common/Factorio/factorio.app/Contents/"
+FACTORIO_ROOT="/mnt/e/Program Files (x86)/Steam/steamapps/common/Factorio/"
 
 # Output file format. PDF recommended.
 # SVG can render tooltips - but they don't contain anything other than debug information.
-OUTFORMAT=pdf
+OUTFORMAT=dot
 
 # LUA interpreter
 LUA=lua

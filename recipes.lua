@@ -5,18 +5,18 @@ require "utils"
 
 -- Recipes to load
 RECIPE_FILES = {
-    "ammo.lua",
-    "capsule.lua",
-    "demo-furnace-recipe.lua",
-    "demo-recipe.lua",
-    "demo-turret.lua",
-    "equipment.lua",
-    "fluid-recipe.lua",
-    "furnace-recipe.lua",
-    "inserter.lua",
-    "module.lua",
-    "recipe.lua",
-    "turret.lua",
+    -- "ammo.lua",
+    -- "capsule.lua",
+    -- "demo-furnace-recipe.lua",
+    -- "demo-recipe.lua",
+    -- "demo-turret.lua",
+    -- "equipment.lua",
+    -- "fluid-recipe.lua",
+    -- "furnace-recipe.lua",
+    -- "inserter.lua",
+    -- "module.lua",
+    -- "recipe.lua",
+    -- "turret.lua",
 }
 -- Which string translation sections to use (now always in base.cfg)
 LANGUAGE_SECTIONS = {
