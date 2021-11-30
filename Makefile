@@ -3,7 +3,7 @@ FACTORIO_ROOT="/mnt/e/Program Files (x86)/Steam/steamapps/common/Factorio/"
 
 # Output file format. PDF recommended.
 # SVG can render tooltips - but they don't contain anything other than debug information.
-OUTFORMAT=dot
+OUTFORMAT=pdf
 
 # LUA interpreter
 LUA=lua

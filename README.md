@@ -2,7 +2,7 @@
 
 This is a collection of Lua scripts that parse Factorio's data files and then use GraphViz to generate trees for recipe and technology dependencies. It does not add woody perennial plants to Factorio, sorry.
 
-![Partial screenshot](screenshot.png "Example")
+![Partial screenshot](https://github.com/ingmar/factorio-trees/blob/master/screenshot.png "Example")
 
 
 # Prerequisites
