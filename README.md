@@ -24,4 +24,12 @@ This is a collection of Lua scripts that parse Factorio's data files and then us
 
 #  Michael Edition
 
-1.   disable pdf and image output
+EN
+
+1.   Modify the source lua file to meet the structure of current version (1.1.48)
+2.   Add csv output for further usage
+
+ZH-CN:
+
+1.   按照 1.1.48 版本的数据结构修改了数据获取函数, 使得其能正常工作于当前环境
+2.   增加了CSV文件导出, 可用于其他工具
