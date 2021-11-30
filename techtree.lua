@@ -80,11 +80,28 @@ function techTreeDotPdfOutput()
     print("}") -- Done!
 end
 
-function techTreeJsonOutput()
+function textOutput()
+    file = io.open("./technology.data.out.csv","w")
+    file:write("resultes,category,resources,energy\n")
+    for id, recipe in pairs(data) do
 
-end    
+        for res_id, res in pairs(recipe.results) do
+            file:write(res.amount,":",res.name,";")
+        end
+        
+        file:write(",",(recipe.category or 'default'),",")
+        
+        for ing_id, ing in pairs(recipe.ingredients) do
+            file:write(ing.amount,":",ing.name,";")
+        end
+
+        file:write(",",recipe.energy_required,"\n")
+
+    end
+    io.close(file)
+end
 
 load_data(TECH_FILES, "")
 load_translations(LANGUAGE_SECTIONS)
 techTreeDotPdfOutput()
-techTreeJsonOutput()
+textOutput()

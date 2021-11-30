@@ -294,8 +294,28 @@ function recipesDotPdfOutput()
     end
     print("}") -- Done!
 end
+function textOutput()
+    file = io.open("./recipes.data.out.csv","w")
+    file:write("resultes,category,resources,energy\n")
+    for id, recipe in pairs(data) do
 
+        for res_id, res in pairs(recipe.results) do
+            file:write(res.amount,":",res.name,";")
+        end
+        
+        file:write(",",(recipe.category or 'default'),",")
+        
+        for ing_id, ing in pairs(recipe.ingredients) do
+            file:write(ing.amount,":",ing.name,";")
+        end
+
+        file:write(",",recipe.energy_required,"\n")
+
+    end
+    io.close(file)
+end
 
 load_data(RECIPE_FILES, "")
 load_translations(LANGUAGE_SECTIONS)
 recipesDotPdfOutput()
+textOutput()

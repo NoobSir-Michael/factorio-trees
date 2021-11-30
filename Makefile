@@ -13,7 +13,7 @@ DOT=dot
 UNFLATTEN=unflatten
 
 
-all: recipes-all.$(OUTFORMAT) recipes-filtered.$(OUTFORMAT) techtree-all.$(OUTFORMAT)
+all: recipes-all.$(OUTFORMAT) techtree-all.$(OUTFORMAT) # recipes-filtered.$(OUTFORMAT)
 
 recipes-all.$(OUTFORMAT): recipes.lua utils.lua
 	$(LUA) -e 'FACTORIO_ROOT=$(FACTORIO_ROOT)' recipes.lua | $(UNFLATTEN) | $(DOT) -T $(OUTFORMAT) -o $@
