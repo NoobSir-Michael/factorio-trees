@@ -21,3 +21,7 @@ This is a collection of Lua scripts that parse Factorio's data files and then us
     # Check FACTORIO_ROOT in the Makefile
     make
     open *.pdf
+
+#  Michael Edition
+
+1.   disable pdf and image output
