@@ -17,6 +17,9 @@ RECIPE_FILES = {
     -- "module.lua",
     -- "recipe.lua",
     -- "turret.lua",
+
+    "data/core/lualib/util.lua",
+    "data/base/prototypes/recipe.lua",
 }
 -- Which string translation sections to use (now always in base.cfg)
 LANGUAGE_SECTIONS = {
@@ -135,7 +138,7 @@ RESOURCES = {
     ["crude-oil"] = true,
     ["iron-ore"] = true,
     ["stone"] = true,
-    ["raw-wood"] = true,
+    ["wood"] = true,
     ["water"] = true,
 }
 
@@ -150,140 +153,149 @@ CATEGORY_LABEL = {
     chemistry = Img(FACTORIO_ROOT.."data/base/graphics/icons/chemical-plant.png"),
 }
 
+function recipesDotPdfOutput()
+    -- Graphviz output
+    print('strict digraph factorio {')
+    -- Change rankdir to LR or TB to change direction of graph
+    print('layout=dot; splines=polyline; rankdir=LR; color="#ffffff"; bgcolor="#332200"; ratio=auto; ranksep=2.0; nodesep=0.15;')
+    -- Node default attributes
+    node_default = {}
+    node_default.color = '"#e4e4e4"'
+    node_default.fontname = '"TitilliumWeb-SemiBold"'
+    node_default.fontcolor = '"#ffffff"'
+    node_default.shape = 'box'
+    node_default.style = 'filled'
+    print(string.format('node [%s]', VizAttr(node_default)))
+    -- Edge default attributes
+    edge_default = {}
+    edge_default.penwidth = 2
+    edge_default.color = '"#DDDD22"'
+    edge_default.fontname = node_default.fontname
+    edge_default.fontcolor = node_default.fontcolor
+    print(string.format('edge [%s]', VizAttr(edge_default)))
 
-load_data(RECIPE_FILES, "data/base/prototypes/recipe/")
-load_translations(LANGUAGE_SECTIONS)
-
-
--- Graphviz output
-print('strict digraph factorio {')
--- Change rankdir to LR or TB to change direction of graph
-print('layout=dot; splines=polyline; rankdir=LR; color="#ffffff"; bgcolor="#332200"; ratio=auto; ranksep=2.0; nodesep=0.15;')
--- Node default attributes
-node_default = {}
-node_default.color = '"#e4e4e4"'
-node_default.fontname = '"TitilliumWeb-SemiBold"'
-node_default.fontcolor = '"#ffffff"'
-node_default.shape = 'box'
-node_default.style = 'filled'
-print(string.format('node [%s]', VizAttr(node_default)))
--- Edge default attributes
-edge_default = {}
-edge_default.penwidth = 2
-edge_default.color = '"#DDDD22"'
-edge_default.fontname = node_default.fontname
-edge_default.fontcolor = node_default.fontcolor
-print(string.format('edge [%s]', VizAttr(edge_default)))
-
--- Raw resources go on the top/leftmost rank on their own
-print('{ rank=source;')
-for res in pairs(RESOURCES) do
-    print(string.format('"%s";', res))
-end
-print('}')
-
-for id, recipe in pairs(data) do
-    -- First do a few sanity checks
-    if recipe.type ~= "recipe" then
-        io.stderr:write(string.format('Found unknown type "%s" instead of "recipe" for %s', recipe.type, recipe.name), "\n")
-        os.exit(1)
+    -- Raw resources go on the top/leftmost rank on their own
+    print('{ rank=source;')
+    for res in pairs(RESOURCES) do
+        print(string.format('"%s";', res))
     end
-    if recipe.enabled ~= "false" then
-        print("// ENABLED:", recipe.name)    -- Initially unlocked recipes?
-    end
-    
-    if not FILTER or (FILTER and not RECIPE_EXCLUDE[recipe.name]) then
-        -- Some recipes have multiple sets of ingredients based on difficulty level.
-        if recipe.ingredients == nil then
-          -- Assume "normal"" difficulty instead of "expensive"
-          recipe.ingredients = recipe.normal.ingredients
-          recipe.result = recipe.normal.result
-        end
-      
-        -- Recipe has .result data, convert to new .results format for easier handling
-        if recipe.result ~= nil then    
-            recipe.results = {{name = recipe.result, amount = recipe.result_count}}
-        end
-    
-        -- Define the recipe node first
-        attr = {}
-        -- If energy_required isn't specified, it defaults to 0.5
-        if recipe.energy_required == nil then recipe.energy_required = 0.5 end
-        attr.label = HtmlLabel(CATEGORY_LABEL[recipe.category or 'default'], nil, recipe.energy_required)
-        attr.tooltip = string.format('"%s"', recipe.name) -- Put the untranslated name into the tooltip
-        attr.fillcolor = '"#6d7235"'
-        attr.color = attr.fillcolor
-        attr.shape = "cds"
-        print(string.format('"Recipe: %s" [%s];', recipe.name, VizAttr(attr)))
-    
-        -- Make edges from each ingredient to the recipe
-        print(string.format("  // Ingredients"))
-        for ing_id, ing in pairs(recipe.ingredients) do
-            -- Convert old array syntax into new descriptive one
-            if ing.type == nil then
-                ing.name = ing[1]
-                ing.amount = ing[2]
-            end
+    print('}')
 
-            -- Define ingredient node
-            attr = {}
-            attr.label = HtmlLabel(T(ing.name), GetIcon(ing))
-            if ing.type == "fluid" then
-                attr.shape = "ellipse"
-                attr.fillcolor = '"#3d3c6e"'
-            else
-                attr.fillcolor = '"#8f8f90"'
-            end
-            attr.color = attr.fillcolor
-            print(string.format('"%s" [%s];', ing.name, VizAttr(attr)))
-
-            -- Ingredient -> Recipe edge
-            attr = {}
-            attr.label = string.format('"x%d"', ing.amount)
-            if ing.type == "fluid" then
-                attr.color = '"#45A7F3"'
-            elseif ing.name == "copper-plate" then
-                attr.color = '"#C77362"'
-            elseif ing.name == "iron-plate" then
-                attr.color = '"#838588"'
-            elseif ing.name == "steel-plate" then
-                attr.color = '"#96ff8B"'
-            else
-                attr.color = edge_default.color
-            end
-            -- For raw resources, set fixed rank
-            if RESOURCES[ing.name] ~= nil then
-                attr.rank="source"
-            end
-            print(string.format('  "%s" -> "Recipe: %s" [%s];', ing.name, recipe.name, VizAttr(attr)))
+    for id, recipe in pairs(data) do
+        -- First do a few sanity checks
+        if recipe.type ~= "recipe" then
+            io.stderr:write(string.format('Found unknown type "%s" instead of "recipe" for %s', recipe.type, recipe.name), "\n")
+            os.exit(1)
         end
-    
-        -- And from the recipe to each result
-        print("  // Results")
-        for res_id, res in pairs(recipe.results) do
-            -- Define result node
-            attr = {}
-            attr.label = HtmlLabel(T(res.name), GetIcon(res))
-            if res.type == "fluid" then
-                attr.fillcolor = '"#3d3c6e"'
-            else
-                attr.fillcolor = '"#8f8f90"'
-            end
-            attr.color = attr.fillcolor
-            print(string.format('"%s" [%s];', res.name, VizAttr(attr)))
+        if recipe.enabled ~= "false" then
+            print("// ENABLED:", recipe.name)    -- Initially unlocked recipes?
+        end
         
-            -- Recipe -> Result edge
-            attr = {}
-            attr.weight = 100  -- Shorten result edges so results are close to recipe/factory
-            attr.label = string.format('x%d', res.amount or 1)
-            if res.type == "fluid" then
-                attr.color = '"#9999ff"'
-            else
-                attr.color = edge_default.color
+        if not FILTER or (FILTER and not RECIPE_EXCLUDE[recipe.name]) then
+            -- Some recipes have multiple sets of ingredients based on difficulty level.
+            if recipe.ingredients == nil then
+                -- Assume "normal"" difficulty instead of "expensive"
+                recipe.ingredients = recipe.normal.ingredients
+                recipe.result = recipe.normal.result
             end
-            print(string.format('  "Recipe: %s" -> "%s" [%s];', recipe.name, res.name, VizAttr(attr)))
+        
+            -- Recipe has .result data, convert to new .results format for easier handling
+            if recipe.result ~= nil and recipe.results == nil then   
+                result_mount_tmp =  recipe.result_count or 1
+                recipe.results = {{name = recipe.result, amount = result_mount_tmp}}
+            elseif (recipe.result == nil and recipe.results ~= nil and recipe.results[1].name == nil) then
+                tmp_results = {}
+                for res_id, res in pairs(recipe.results) do
+                    tmp_results[res_id] = {name = res[1], amount = res[2]}
+                end
+                recipe.results = tmp_results
+            end
+        
+            -- Define the recipe node first
+            attr = {}
+            -- If energy_required isn't specified, it defaults to 0.5
+            if recipe.energy_required == nil then recipe.energy_required = 0.5 end
+            attr.label = HtmlLabel(CATEGORY_LABEL[recipe.category or 'default'], nil, recipe.energy_required)
+            attr.tooltip = string.format('"%s"', recipe.name) -- Put the untranslated name into the tooltip
+            attr.fillcolor = '"#6d7235"'
+            attr.color = attr.fillcolor
+            attr.shape = "cds"
+            print(string.format('"Recipe: %s" [%s];', recipe.name, VizAttr(attr)))
+        
+            -- Make edges from each ingredient to the recipe
+            print(string.format("  // Ingredients"))
+            for ing_id, ing in pairs(recipe.ingredients) do
+                -- Convert old array syntax into new descriptive one
+                if ing.type == nil then
+                    ing.name = ing[1]
+                    ing.amount = ing[2]
+                end
+
+                -- Define ingredient node
+                attr = {}
+                attr.label = HtmlLabel(T(ing.name), GetIcon(ing))
+                if ing.type == "fluid" then
+                    attr.shape = "ellipse"
+                    attr.fillcolor = '"#3d3c6e"'
+                else
+                    attr.fillcolor = '"#8f8f90"'
+                end
+                attr.color = attr.fillcolor
+                print(string.format('"%s" [%s];', ing.name, VizAttr(attr)))
+
+                -- Ingredient -> Recipe edge
+                attr = {}
+                attr.label = string.format('"x%d"', ing.amount)
+                if ing.type == "fluid" then
+                    attr.color = '"#45A7F3"'
+                elseif ing.name == "copper-plate" then
+                    attr.color = '"#C77362"'
+                elseif ing.name == "iron-plate" then
+                    attr.color = '"#838588"'
+                elseif ing.name == "steel-plate" then
+                    attr.color = '"#96ff8B"'
+                else
+                    attr.color = edge_default.color
+                end
+                -- For raw resources, set fixed rank
+                if RESOURCES[ing.name] ~= nil then
+                    attr.rank="source"
+                end
+                print(string.format('  "%s" -> "Recipe: %s" [%s];', ing.name, recipe.name, VizAttr(attr)))
+            end
+        
+            -- And from the recipe to each result
+            print("  // Results")
+            for res_id, res in pairs(recipe.results) do
+                -- Define result node
+                attr = {}
+                attr.label = HtmlLabel(T(res.name), GetIcon(res))
+                if res.type == "fluid" then
+                    attr.fillcolor = '"#3d3c6e"'
+                else
+                    attr.fillcolor = '"#8f8f90"'
+                end
+                attr.color = attr.fillcolor
+                print(string.format('"%s" [%s];', res.name, VizAttr(attr)))
+            
+                -- Recipe -> Result edge
+                attr = {}
+                attr.weight = 100  -- Shorten result edges so results are close to recipe/factory
+                attr.label = string.format('x%d', res.amount or 1)
+                if res.type == "fluid" then
+                    attr.color = '"#9999ff"'
+                else
+                    attr.color = edge_default.color
+                end
+                print(string.format('  "Recipe: %s" -> "%s" [%s];', recipe.name, res.name, VizAttr(attr)))
+            end
+            print("")
         end
-        print("")
     end
+    print("}") -- Done!
 end
-print("}") -- Done!
+
+
+load_data(RECIPE_FILES, "")
+load_translations(LANGUAGE_SECTIONS)
+recipesDotPdfOutput()
